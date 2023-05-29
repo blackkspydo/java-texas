@@ -10,6 +10,10 @@ public class Test {
         System.out.println(s);
         System.out.println("Enter a string: ");
         String s2 = sc.nextLine();
+        String s3 = sc.nextLine();
+        String s4 = sc.nextLine();
+        System.out.println(s3);
+        System.out.println(s4);
         System.out.println(s2);
     }
 
