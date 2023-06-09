@@ -41,6 +41,7 @@ public class Main {
         // querying hashmaps
         Student m = getStudent(1, studentsData);
         System.out.println(m);
+        System.out.println(studentsData);
 
         // all courses
         Set<Courses> allCourses = new HashSet<Courses>();
