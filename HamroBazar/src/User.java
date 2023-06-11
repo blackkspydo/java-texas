@@ -18,6 +18,19 @@ public class User {
         this.password = password;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", productsPosted=" + productsPosted +
+                ", productsBought=" + productsBought +
+                ", productsSold=" + productsSold +
+                '}';
+    }
+
     public UUID getId() {
         return id;
     }
@@ -73,4 +86,23 @@ public class User {
     public void setProductsSold(ArrayList<UUID> productsSold) {
         this.productsSold = productsSold;
     }
+
+    public void addProductPosted(UUID productId) {
+        this.productsPosted.add(productId);
+    }
+
+    public void addProductBought(UUID productId) {
+        this.productsBought.add(productId);
+    }
+
+    public void addProductSold(UUID productId) {
+        this.productsSold.add(productId);
+    }
+
+    public void removeProductPosted(UUID productId) {
+        this.productsPosted.remove(productId);
+    }
+
+
+
 }

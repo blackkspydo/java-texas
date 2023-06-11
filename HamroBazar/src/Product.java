@@ -88,34 +88,4 @@ public class Product {
                 }
                 """.formatted(productId, name, description, price, condition, category, sellerId);
     }
-
-    // addProduct
-    public void addProduct(Product product) {
-        // TODO: add product to csv file and update the productsPosted list of the seller
-
-        // Get the file path for the products CSV file
-        String filePath = "./db/products.csv";
-
-        // Create a new file object for the products CSV file
-        File file = new File(filePath);
-
-        try {
-            // Create a new FileWriter object to write to the CSV file
-            FileWriter writer = new FileWriter(file, true);
-
-            // Write the product details to the CSV file
-            writer.write(product.getId() + "," + product.getSellerId() + "," + product.getName() + "," + product.getDescription() + "," + product.getPrice() + "\n");
-
-            // Close the FileWriter object
-            writer.close();
-
-            // Update the productsPosted list of the seller
-//            User seller = User.getSellerById(product.getSellerId());
-//            seller.addProductPosted(product);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

@@ -7,7 +7,7 @@ public class Order {
     private UUID sellerId;
     private double price;
     private int quantity;
-    private double totalPrice;
+    private final double totalPrice;
     private OrderStatus status;
 
     public Order(UUID productId, UUID buyerId, UUID sellerId, double price, int quantity) {
