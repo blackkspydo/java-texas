@@ -2,7 +2,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.UUID;
 
 public class DbPool {
@@ -13,7 +12,7 @@ public class DbPool {
     private static final HashMap<UUID, User> userMap = new HashMap<>();
     private static final HashMap<String, User> usernameMap = new HashMap<>();
     private static final HashMap<UUID, Product> productMap = new HashMap<>();
-    private static final HashMap<UUID, Order> orderMap = new HashMap<>();
+    private static final HashMap<String, Order> orderMap = new HashMap<>();
 
     /**
      * =============================================
@@ -39,7 +38,6 @@ public class DbPool {
 
     public static void saveUser(@NotNull User user) throws IOException {
         if (!doesUserExist((user.getUsername()))) {
-            System.out.println("User does not exist");
             putUser(user);
             FileWriter writer = new FileWriter(USER_FILE, true);
             writer.write(user.getId() + "," + user.getName() + "," + user.getUsername() + "," + user.getPassword() + "\n");
@@ -186,7 +184,7 @@ public class DbPool {
         String line = reader.readLine();
         while (line != null) {
             String[] fields = line.split(",");
-            UUID id = UUID.fromString(fields[0]);
+            String id = fields[0];
             UUID productId = UUID.fromString(fields[1]);
             UUID buyerId = UUID.fromString(fields[2]);
             UUID sellerId = UUID.fromString(fields[3]);
@@ -201,7 +199,7 @@ public class DbPool {
         reader.close();
     }
 
-    public static HashMap<UUID, Order> getOrderMap() {
+    public static HashMap<String, Order> getOrderMap() {
         return orderMap;
     }
 
@@ -229,7 +227,7 @@ public class DbPool {
         System.out.println("Order already exists");
     }
 
-    public static void updateOrderStatus(UUID orderId, OrderStatus status) throws IOException {
+    public static void updateOrderStatus(String orderId, OrderStatus status) throws IOException {
         if (doesOrderExist(orderId)) {
             System.out.println("Order does not exist");
             return;
@@ -242,7 +240,7 @@ public class DbPool {
         StringBuilder inputBuffer = new StringBuilder();
         while ((line = reader.readLine()) != null) {
             String[] fields = line.split(",");
-            UUID id = UUID.fromString(fields[0]);
+            String id =fields[0];
             if (id.equals(orderId)) {
                 inputBuffer
                         .append(order.getOrderId()).append(",")
@@ -268,7 +266,7 @@ public class DbPool {
         return orderMap.get(id);
     }
 
-    public static boolean doesOrderExist(UUID orderId) {
+    public static boolean doesOrderExist(String orderId) {
         return orderMap.containsKey(orderId);
     }
 

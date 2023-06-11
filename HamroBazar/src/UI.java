@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
 public class UI {
+    public static Pages currentPage = Pages.HOME_USER_NOT_LOGGED_IN;
     public static void getHeaderNewUser() {
         String line = """
                 +----------------------------------------------------------------------------------+
@@ -25,8 +26,12 @@ public class UI {
     }
 
     public static void main(String[] args) {
-        getHeaderNewUser();
+        while (true){
+            System.out.println(currentPage+" is the current page");
+            parseCommand();
+        }
     }
+
     public static void getFooter(Pages page) {
         String not_logged_in = """
                 1.Home         2.Signup
@@ -46,23 +51,35 @@ public class UI {
         Scanner scanner = new Scanner(System.in);
         String command = scanner.nextLine();
         String[] commandArray = command.split(" ");
+        int length = commandArray.length;
         String action = commandArray[0];
-        String page = commandArray[1];
-        System.out.println(action);
-        System.out.println(page);
-        if (action.equals("go") && page.equals("home")) {
-            System.out.println("You are in home page");
-        } else if (action.equals("go") && page.equals("profile")) {
-            System.out.println("You are in profile page");
-        } else if (action.equals("go") && page.equals("post")) {
-            System.out.println("You are in post page");
-        } else if (action.equals("go") && page.equals("view")) {
-            System.out.println("You are in view page");
-        } else if (action.equals("go") && page.equals("logout")) {
-            System.out.println("You are in logout page");
-        } else {
-            System.out.println("Err: Invalid command");
+        String page = length > 1 ? commandArray[1] : "";
+        switch (action) {
+            case "goto" -> {
+                switch (page) {
+                    case "home" -> currentPage = Pages.HOME;
+                    case "profile" -> currentPage = Pages.PROFILE;
+                    case "post" -> currentPage = Pages.POST_PRODUCT;
+                    case "view" -> currentPage = Pages.PRODUCT;
+                    case "cart" -> currentPage = Pages.CART;
+                    default -> System.out.println("Err: Invalid command");
+                }
+            }
+            case "back" -> currentPage = Pages.HOME;
+            case "add" -> {
+                switch (page) {
+                    case "product" -> System.out.println("Product added");
+
+                    default -> System.out.println("Err: Invalid command");
+                }
+            }
+            case "login" -> currentPage = Pages.LOGIN;
+            case "signup" -> currentPage = Pages.REGISTER;
+            case "help"-> currentPage = Pages.HELP;
+            case "exit" -> System.exit(0);
+            default -> System.out.println("Err: Invalid command");
         }
+
     }
 
 

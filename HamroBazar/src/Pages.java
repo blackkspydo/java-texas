@@ -4,6 +4,7 @@ public enum Pages {
     LOGIN("Login"),
     REGISTER("Register"),
     PROFILE("Profile"),
+    HELP("Help"),
     POST_PRODUCT("Post Product"),
     PRODUCT("Product"),
     CART("Cart"),

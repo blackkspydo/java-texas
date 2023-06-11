@@ -1,7 +1,7 @@
 import java.util.UUID;
 
 public class Order {
-    private UUID orderId = UUID.randomUUID();
+    private String orderId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     private UUID productId;
     private UUID buyerId;
     private UUID sellerId;
@@ -20,7 +20,11 @@ public class Order {
         this.status = OrderStatus.PENDING;
     }
 
-    public UUID getOrderId() {
+    public static void main(String[] args) {
+        Order order = new Order(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), 100, 2);
+        System.out.println(order);
+    }
+    public String getOrderId() {
         return orderId;
     }
 
@@ -52,7 +56,7 @@ public class Order {
         return status;
     }
 
-    public void setOrderId(UUID orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 
