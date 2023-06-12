@@ -1,5 +1,6 @@
 public enum Pages {
     HOME_USER_NOT_LOGGED_IN("Home User Not Logged In"),
+    NADA("Nada"),
     HOME("Home"),
     LOGIN("Login"),
     REGISTER("Register"),

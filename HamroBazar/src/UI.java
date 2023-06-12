@@ -24,15 +24,32 @@ public class UI {
                 +----------------------------------------------------------------------------------+
                 """.formatted(User.currentUser != null ? User.currentUser.getUsername() : "");
         System.out.printf(line);
+        switch (page){
+            case NADA -> System.out.println();
+            case HOME -> System.out.println(line);
+        }
     }
 
     public static void getBody(Pages page) {
-        String home = """
-                                
-                THIS IS HOME PAGE
-                                
-                                
-                """;
+        String home = User.currentUser != null ?"""
+                HamroBazar MarketPlace is a platform where you can buy and sell products.
+                You can buy products from the following categories:
+                +----------------------------------------------------------------------------------+
+                | Electronics | Fashion | Home | Sports | Toys | Other |
+                +----------------------------------------------------------------------------------+
+                You can sell products in the following categories:
+                +----------------------------------------------------------------------------------+
+                | Electronics | Fashion | Home | Sports | Toys | Other |
+                +----------------------------------------------------------------------------------+
+                
+                +----------------------------------------------------------------------------------+
+                Suggested commands:
+                login -u <username> -p <password>
+                signup -n <name> -u <username> -p <password>
+                help | exit
+                +----------------------------------------------------------------------------------+
+                """: "";
+
         String profile = User.currentUser != null ? """
                 \n
                 +----------------------------------------------------------------------------------+
@@ -105,7 +122,7 @@ public class UI {
         }
     }
 
-    public static void parseCommand() {
+    public static void parseCommand() throws IOException {
         System.out.print("HAMROCLI _> ");
         Scanner scanner = new Scanner(System.in);
         String command = scanner.nextLine();
@@ -127,23 +144,24 @@ public class UI {
             case "back" -> currentPage = Pages.HOME;
             case "add" -> {
                 switch (argument) {
-                    case "product" -> System.out.println("Product added");
+                    case "product" -> ServiceHandlers.addProductHandler(command);
                     case "cart" -> System.out.println("Product added to cart");
                     default -> System.out.println("Err: Invalid command");
                 }
             }
             case "edit" -> {
                 switch (argument) {
-                    case "profile" -> System.out.println("Profile edited");
-                    case "product" -> System.out.println("Product edited");
+                    case "profile" -> ServiceHandlers.editProfileHandler(command);
+                    case "product" -> ServiceHandlers.editProductHandler(command);
                     default -> System.out.println("Err: Invalid command");
                 }
             }
             case "next" -> System.out.println("Next page");
             case "prev" -> System.out.println("Previous page");
             case "login" -> ServiceHandlers.loginHandler(command);
-            case "signup" -> currentPage = Pages.REGISTER;
+            case "signup" -> ServiceHandlers.registerHandler(command);
             case "help" -> currentPage = Pages.HELP;
+            case "logout" -> ServiceHandlers.logoutHandler();
             case "exit" -> System.exit(0);
             default -> System.out.println("Err: Invalid command");
         }

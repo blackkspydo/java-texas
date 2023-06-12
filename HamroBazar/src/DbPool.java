@@ -1,6 +1,11 @@
+
+
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -61,7 +66,7 @@ public class DbPool {
     }
 
     public static void updateUser(User user) throws IOException {
-        if (doesUserExist(user.getUsername())) {
+        if (doesUserExist(user.getId())) {
             System.out.println("User does not exist");
             return;
         }
@@ -72,9 +77,14 @@ public class DbPool {
         StringBuilder inputBuffer = new StringBuilder();
         while ((line = reader.readLine()) != null) {
             String[] fields = line.split(",");
+            UUID userId = UUID.fromString(fields[0]);
             String username = fields[2];
-            if (username.equals(user.getUsername())) {
-                inputBuffer.append(user.getId()).append(",").append(user.getName()).append(",").append(user.getUsername()).append(",").append(user.getPassword()).append("\n");
+            if (userId.equals(user.getId())) {
+                inputBuffer
+                        .append(user.getId()).append(",")
+                        .append(user.getName()).append(",")
+                        .append(user.getUsername()).append(",")
+                        .append(user.getPassword()).append("\n");
             } else {
                 inputBuffer.append(line).append("\n");
             }
@@ -89,6 +99,9 @@ public class DbPool {
         return usernameMap.containsKey(username);
     }
 
+    public  static boolean doesUserExist(UUID id) {
+        return userMap.containsKey(id);
+    }
     public static User[] getAllUsers() {
         return userMap.values().toArray(new User[0]);
     }
@@ -119,7 +132,6 @@ public class DbPool {
 
     public static void saveProduct(@NotNull Product product) throws IOException {
         if (!doesProductExist(product.getId())) {
-            System.out.println("Product does not exist");
             putProduct(product);
             FileWriter writer = new FileWriter(PRODUCT_FILE, true);
             writer.write(product.getId() + "," + product.getName() + "," + product.getDescription() + "," + product.getPrice() + "," + product.getCondition() + "," + product.getCategory() + "," + product.getSellerId() + "\n");
@@ -280,5 +292,9 @@ public class DbPool {
         loadUsers();
         loadProducts();
         loadOrders();
+    }
+
+    public static Product getProductById(String id) {
+        return productMap.get(id);
     }
 }
