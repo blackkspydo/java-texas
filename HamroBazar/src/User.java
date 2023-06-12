@@ -8,9 +8,11 @@ public class User {
     private String username;
     private String password;
 
-    private ArrayList<UUID> productsPosted = new ArrayList<UUID>();
-    private ArrayList<UUID> productsBought = new ArrayList<UUID>();
-    private ArrayList<UUID> productsSold = new ArrayList<UUID>();
+    private ArrayList<String> productsPosted = new ArrayList<String>();
+    private ArrayList<String> productsBought = new ArrayList<String>();
+    private ArrayList<String> productsSold = new ArrayList<String>();
+
+    public static User currentUser;
 
     public User(String name, String username, String password) {
         this.name = name;
@@ -63,46 +65,51 @@ public class User {
         this.password = password;
     }
 
-    public ArrayList<UUID> getProductsPosted() {
+    public ArrayList<String> getProductsPosted() {
         return productsPosted;
     }
 
-    public void setProductsPosted(ArrayList<UUID> productsPosted) {
+    public void setProductsPosted(ArrayList<String> productsPosted) {
         this.productsPosted = productsPosted;
     }
 
-    public ArrayList<UUID> getProductsBought() {
+    public ArrayList<String> getProductsBought() {
         return productsBought;
     }
 
-    public void setProductsBought(ArrayList<UUID> productsBought) {
+    public void setProductsBought(ArrayList<String> productsBought) {
         this.productsBought = productsBought;
     }
 
-    public ArrayList<UUID> getProductsSold() {
+    public ArrayList<String> getProductsSold() {
         return productsSold;
     }
 
-    public void setProductsSold(ArrayList<UUID> productsSold) {
+    public void setProductsSold(ArrayList<String> productsSold) {
         this.productsSold = productsSold;
     }
 
-    public void addProductPosted(UUID productId) {
+    public void addProductPosted(String productId) {
         this.productsPosted.add(productId);
     }
 
-    public void addProductBought(UUID productId) {
+    public void addProductBought(String productId) {
         this.productsBought.add(productId);
     }
 
-    public void addProductSold(UUID productId) {
+    public void addProductSold(String productId) {
         this.productsSold.add(productId);
     }
 
-    public void removeProductPosted(UUID productId) {
+    public void removeProductPosted(String productId) {
         this.productsPosted.remove(productId);
     }
 
+    //TODO: Implement this method
+    public Integer getBalance() {
+        Integer balance = 0;
 
+        return balance;
+    }
 
 }

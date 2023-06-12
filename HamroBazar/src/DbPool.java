@@ -11,7 +11,7 @@ public class DbPool {
     private static final String ORDER_FILE = ROOT_DIR + "/src/db/orders.csv";
     private static final HashMap<UUID, User> userMap = new HashMap<>();
     private static final HashMap<String, User> usernameMap = new HashMap<>();
-    private static final HashMap<UUID, Product> productMap = new HashMap<>();
+    private static final HashMap<String, Product> productMap = new HashMap<>();
     private static final HashMap<String, Order> orderMap = new HashMap<>();
 
     /**
@@ -103,7 +103,7 @@ public class DbPool {
         String line = reader.readLine();
         while (line != null) {
             String[] fields = line.split(",");
-            UUID productId = UUID.fromString(fields[0]);
+            String productId = fields[0];
             String name = fields[1];
             String description = fields[2];
             double price = Double.parseDouble(fields[3]);
@@ -140,7 +140,7 @@ public class DbPool {
         StringBuilder inputBuffer = new StringBuilder();
         while ((line = reader.readLine()) != null) {
             String[] fields = line.split(",");
-            UUID productId = UUID.fromString(fields[0]);
+            String productId = fields[0];
             if (productId.equals(product.getId())) {
                 inputBuffer
                         .append(product.getId()).append(",")
@@ -161,11 +161,11 @@ public class DbPool {
         writer.close();
     }
 
-    public static boolean doesProductExist(UUID productId) {
+    public static boolean doesProductExist(String productId) {
         return productMap.containsKey(productId);
     }
 
-    public static HashMap<UUID, Product> getProductMap() {
+    public static HashMap<String, Product> getProductMap() {
         return productMap;
     }
 
@@ -185,7 +185,7 @@ public class DbPool {
         while (line != null) {
             String[] fields = line.split(",");
             String id = fields[0];
-            UUID productId = UUID.fromString(fields[1]);
+            String productId = fields[1];
             UUID buyerId = UUID.fromString(fields[2]);
             UUID sellerId = UUID.fromString(fields[3]);
             double price = Double.parseDouble(fields[4]);

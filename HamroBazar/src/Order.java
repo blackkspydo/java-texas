@@ -2,7 +2,7 @@ import java.util.UUID;
 
 public class Order {
     private String orderId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    private UUID productId;
+    private String productId;
     private UUID buyerId;
     private UUID sellerId;
     private double price;
@@ -10,7 +10,7 @@ public class Order {
     private final double totalPrice;
     private OrderStatus status;
 
-    public Order(UUID productId, UUID buyerId, UUID sellerId, double price, int quantity) {
+    public Order(String productId, UUID buyerId, UUID sellerId, double price, int quantity) {
         this.productId = productId;
         this.buyerId = buyerId;
         this.sellerId = sellerId;
@@ -21,14 +21,14 @@ public class Order {
     }
 
     public static void main(String[] args) {
-        Order order = new Order(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), 100, 2);
+        Order order = new Order("SSDSFSAA", UUID.randomUUID(), UUID.randomUUID(), 100, 2);
         System.out.println(order);
     }
     public String getOrderId() {
         return orderId;
     }
 
-    public UUID getProductId() {
+    public String getProductId() {
         return productId;
     }
 
@@ -60,7 +60,7 @@ public class Order {
         this.orderId = orderId;
     }
 
-    public void setProductId(UUID productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

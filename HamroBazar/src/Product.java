@@ -1,10 +1,7 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.UUID;
 
 public class Product {
-    private final UUID productId = UUID.randomUUID();
+    private final String productId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     private String name;
     private String description;
     private double price;
@@ -22,7 +19,7 @@ public class Product {
         this.sellerId = sellerId;
     }
 
-    public UUID getId() {
+    public String getId() {
         return productId;
     }
 
