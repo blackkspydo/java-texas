@@ -1,7 +1,7 @@
 import java.util.UUID;
 
 public class Product {
-    private String productId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    private String productId ;
     private String name;
     private String description;
     private double price;
@@ -11,6 +11,16 @@ public class Product {
     private UUID sellerId;
 
     public Product(String name, String description, double price, Condition condition, Category category, UUID sellerId) {
+        this.productId = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.condition = condition;
+        this.category = category;
+        this.sellerId = sellerId;
+    }
+    public Product(String id,String name, String description, double price, Condition condition, Category category, UUID sellerId) {
+        this.productId = id;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -19,7 +29,15 @@ public class Product {
         this.sellerId = sellerId;
     }
 
-
+    public Product(Product product) {
+        this.productId = product.productId;
+        this.name = product.name;
+        this.description = product.description;
+        this.price = product.price;
+        this.condition = product.condition;
+        this.category = product.category;
+        this.sellerId = product.sellerId;
+    }
 
     public String getId() {
         return productId;
@@ -90,5 +108,9 @@ public class Product {
 
     public  void setId(String id) {
         this.productId = id;
+    }
+
+    public UUID getSeller() {
+        return sellerId;
     }
 }

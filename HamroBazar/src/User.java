@@ -3,7 +3,7 @@ import java.util.UUID;
 
 public class User {
 
-    private UUID id =  UUID.randomUUID();
+    private UUID id ;
     private String name;
     private String username;
     private String password;
@@ -15,9 +15,25 @@ public class User {
     public static User currentUser;
 
     public User(String name, String username, String password) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.username = username;
         this.password = password;
+    }
+    public User(UUID id, String name, String username, String password) {
+        this.id = id;
+        this.name = name;
+        this.username = username;
+        this.password = password;
+    }
+    public User(User user) {
+        this.id = user.id;
+        this.name = user.name;
+        this.username = user.username;
+        this.password = user.password;
+        this.productsPosted = user.productsPosted;
+        this.productsBought = user.productsBought;
+        this.productsSold = user.productsSold;
     }
 
     @Override

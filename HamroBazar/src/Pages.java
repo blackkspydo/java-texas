@@ -12,13 +12,7 @@ public enum Pages {
     CHECKOUT("Checkout"),
     ORDERS("Orders"),
     ORDER("Order"),
-    ADMIN("Admin"),
-    ADMIN_USERS("Admin Users"),
-    ADMIN_PRODUCTS("Admin Products"),
-    ADMIN_ORDERS("Admin Orders"),
-    ADMIN_USER("Admin User"),
-    ADMIN_PRODUCT("Admin Product"),
-    ADMIN_ORDER("Admin Order");
+    PRODUCT_VIEW("Product View");
 
     private final String value;
 

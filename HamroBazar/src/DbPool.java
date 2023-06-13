@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -33,7 +35,26 @@ public class DbPool {
             String name = fields[1];
             String username = fields[2];
             String password = fields[3];
-            User user = new User(name, username, password);
+
+            ArrayList<String> productsPosted = new ArrayList<>();
+            ArrayList<String> productsBought = new ArrayList<>();
+            ArrayList<String> productsSold = new ArrayList<>();
+
+            // Check if there are product lists to read
+            if (fields.length > 4) {
+                productsPosted = new ArrayList<>(Arrays.asList(fields[4].split(";")));
+            }
+            if (fields.length > 5) {
+                productsBought = new ArrayList<>(Arrays.asList(fields[5].split(";")));
+            }
+            if (fields.length > 6) {
+                productsSold = new ArrayList<>(Arrays.asList(fields[6].split(";")));
+            }
+
+            User user = new User(id, name, username, password);
+            user.setProductsPosted(productsPosted);
+            user.setProductsBought(productsBought);
+            user.setProductsSold(productsSold);
             userMap.put(id, user);
             usernameMap.put(user.getUsername(), user);
             line = reader.readLine();
@@ -45,12 +66,20 @@ public class DbPool {
         if (!doesUserExist((user.getUsername()))) {
             putUser(user);
             FileWriter writer = new FileWriter(USER_FILE, true);
-            writer.write(user.getId() + "," + user.getName() + "," + user.getUsername() + "," + user.getPassword() + "\n");
+            String csvString = user.getId() + "," +
+                    user.getName() + "," +
+                    user.getUsername() + "," +
+                    user.getPassword() + "," +
+                    String.join(";", user.getProductsPosted()) + "," +
+                    String.join(";", user.getProductsBought()) + "," +
+                    String.join(";", user.getProductsSold()) + "\n";
+            writer.write(csvString);
             writer.close();
             return;
         }
         System.out.println("User already exists");
     }
+
 
     public static HashMap<UUID, User> getUserMap() {
         return userMap;
@@ -63,6 +92,9 @@ public class DbPool {
 
     public static User getUserByUsername(String username) {
         return usernameMap.get(username);
+    }
+    public  static User getUserById(UUID id) {
+        return userMap.get(id);
     }
 
     public static void updateUser(User user) throws IOException {
@@ -123,7 +155,7 @@ public class DbPool {
             Condition condition = Condition.valueOf(fields[4]);
             Category category = Category.valueOf(fields[5]);
             UUID sellerId = UUID.fromString(fields[6]);
-            Product product = new Product(name, description, price, condition, category, sellerId);
+            Product product = new Product(productId,name, description, price, condition, category, sellerId);
             productMap.put(productId, product);
             line = reader.readLine();
         }
@@ -136,6 +168,8 @@ public class DbPool {
             FileWriter writer = new FileWriter(PRODUCT_FILE, true);
             writer.write(product.getId() + "," + product.getName() + "," + product.getDescription() + "," + product.getPrice() + "," + product.getCondition() + "," + product.getCategory() + "," + product.getSellerId() + "\n");
             writer.close();
+            User.currentUser.addProductPosted(product.getId());
+            updateUser(User.currentUser);
             return;
         }
         System.out.println("Product already exists");
@@ -173,6 +207,28 @@ public class DbPool {
         writer.close();
     }
 
+    public static void deleteProduct(@NotNull Product product) throws IOException {
+        if (!doesProductExist(product.getId())) {
+            System.out.println("Product does not exist");
+            return;
+        }
+        productMap.remove(product.getId());
+        BufferedReader reader = new BufferedReader(new FileReader(PRODUCT_FILE));
+        String line;
+        StringBuilder inputBuffer = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            String[] fields = line.split(",");
+            String productId = fields[0];
+            if (!productId.equals(product.getId())) {
+                inputBuffer
+                        .append(line).append("\n");
+            }
+        }
+        reader.close();
+        FileWriter writer = new FileWriter(PRODUCT_FILE);
+        writer.write(inputBuffer.toString());
+        writer.close();
+    }
     public static boolean doesProductExist(String productId) {
         return productMap.containsKey(productId);
     }
@@ -197,19 +253,21 @@ public class DbPool {
         while (line != null) {
             String[] fields = line.split(",");
             String id = fields[0];
-            String productId = fields[1];
+            String[] productIds = fields[1].split(";");
             UUID buyerId = UUID.fromString(fields[2]);
-            UUID sellerId = UUID.fromString(fields[3]);
-            double price = Double.parseDouble(fields[4]);
-            int quantity = Integer.parseInt(fields[5]);
-            double totalPrice = Double.parseDouble(fields[6]);
-            OrderStatus status = OrderStatus.valueOf(fields[7]);
-            Order order = new Order(productId, buyerId, sellerId, price, quantity);
+            ArrayList<UUID> sellerIds = new ArrayList<>();
+            String[] sellerIdsString = fields[3].split(";");
+            for (String sellerId : sellerIdsString) {
+                sellerIds.add(UUID.fromString(sellerId));
+            }
+            double totalPrice = Double.parseDouble(fields[4]);
+            Order order = new Order(id,(ArrayList<String>) Arrays.asList(productIds), buyerId, sellerIds, totalPrice);
             orderMap.put(id, order);
             line = reader.readLine();
         }
         reader.close();
     }
+
 
     public static HashMap<String, Order> getOrderMap() {
         return orderMap;
@@ -224,14 +282,13 @@ public class DbPool {
             System.out.println("Order does not exist");
             putOrder(order);
             FileWriter writer = new FileWriter(ORDER_FILE, true);
+            String products = String.join(";", order.getProducts());
+            String sellerIds = String.join(";", order.getSellerIds().toString());
             String entry = order.getOrderId() + "," +
-                    order.getProductId() + "," +
+                    products + "," +
                     order.getBuyerId() + "," +
-                    order.getSellerId() + "," +
-                    order.getPrice() + "," +
-                    order.getQuantity() + "," +
-                    order.getTotalPrice() + "," +
-                    order.getStatus() + "\n";
+                    sellerIds + "," +
+                    order.getTotalPrice() + "\n";
             writer.write(entry);
             writer.close();
             return;
@@ -239,40 +296,8 @@ public class DbPool {
         System.out.println("Order already exists");
     }
 
-    public static void updateOrderStatus(String orderId, OrderStatus status) throws IOException {
-        if (doesOrderExist(orderId)) {
-            System.out.println("Order does not exist");
-            return;
-        }
-        Order order = orderMap.get(orderId);
-        order.setStatus(status);
-        orderMap.put(orderId, order);
-        BufferedReader reader = new BufferedReader(new FileReader(ORDER_FILE));
-        String line;
-        StringBuilder inputBuffer = new StringBuilder();
-        while ((line = reader.readLine()) != null) {
-            String[] fields = line.split(",");
-            String id =fields[0];
-            if (id.equals(orderId)) {
-                inputBuffer
-                        .append(order.getOrderId()).append(",")
-                        .append(order.getProductId()).append(",")
-                        .append(order.getBuyerId()).append(",")
-                        .append(order.getSellerId()).append(",")
-                        .append(order.getPrice()).append(",")
-                        .append(order.getQuantity()).append(",")
-                        .append(order.getTotalPrice()).append(",")
-                        .append(order.getStatus()).append("\n");
-            } else {
-                inputBuffer
-                        .append(line).append("\n");
-            }
-        }
-        reader.close();
-        FileWriter writer = new FileWriter(ORDER_FILE);
-        writer.write(inputBuffer.toString());
-        writer.close();
-    }
+
+
 
     public static Order getOrderById(UUID id) {
         return orderMap.get(id);
@@ -289,12 +314,26 @@ public class DbPool {
      */
 
     public static void loadDataFromCSV() throws IOException {
+
         loadUsers();
         loadProducts();
-        loadOrders();
+        loadOrders(); //print all hashmap
+
     }
 
     public static Product getProductById(String id) {
         return productMap.get(id);
+    }
+
+    public static void printHash() {
+        for (User user : userMap.values()) {
+            System.out.println(user);
+        }
+        for (Product product : productMap.values()) {
+            System.out.println(product);
+        }
+        for (Order order : orderMap.values()) {
+            System.out.println(order);
+        }
     }
 }
