@@ -98,7 +98,7 @@ public class DbPool {
     }
 
     public static void updateUser(User user) throws IOException {
-        if (doesUserExist(user.getId())) {
+        if (!doesUserExist(user.getId())) {
             System.out.println("User does not exist");
             return;
         }
@@ -111,12 +111,16 @@ public class DbPool {
             String[] fields = line.split(",");
             UUID userId = UUID.fromString(fields[0]);
             String username = fields[2];
+
             if (userId.equals(user.getId())) {
                 inputBuffer
                         .append(user.getId()).append(",")
                         .append(user.getName()).append(",")
                         .append(user.getUsername()).append(",")
-                        .append(user.getPassword()).append("\n");
+                        .append(user.getPassword()).append(",")
+                        .append(String.join(";", user.getProductsPosted())).append(",")
+                        .append(String.join(";", user.getProductsBought())).append(",")
+                        .append(String.join(";", user.getProductsSold())).append("\n");
             } else {
                 inputBuffer.append(line).append("\n");
             }
@@ -253,7 +257,8 @@ public class DbPool {
         while (line != null) {
             String[] fields = line.split(",");
             String id = fields[0];
-            String[] productIds = fields[1].split(";");
+            ArrayList<String> productIds = new ArrayList<String>();
+             productIds.addAll(Arrays.asList(fields[1].split(";")));
             UUID buyerId = UUID.fromString(fields[2]);
             ArrayList<UUID> sellerIds = new ArrayList<>();
             String[] sellerIdsString = fields[3].split(";");
@@ -261,7 +266,7 @@ public class DbPool {
                 sellerIds.add(UUID.fromString(sellerId));
             }
             double totalPrice = Double.parseDouble(fields[4]);
-            Order order = new Order(id,(ArrayList<String>) Arrays.asList(productIds), buyerId, sellerIds, totalPrice);
+            Order order = new Order(id,productIds, buyerId, sellerIds, totalPrice);
             orderMap.put(id, order);
             line = reader.readLine();
         }
@@ -279,11 +284,14 @@ public class DbPool {
 
     public static void saveOrder(@NotNull Order order) throws IOException {
         if (!doesOrderExist(order.getOrderId())) {
-            System.out.println("Order does not exist");
             putOrder(order);
             FileWriter writer = new FileWriter(ORDER_FILE, true);
             String products = String.join(";", order.getProducts());
-            String sellerIds = String.join(";", order.getSellerIds().toString());
+            ArrayList<String> sellerIdsArr = new ArrayList<>();
+            for (UUID sellerId : order.getSellerIds()) {
+                sellerIdsArr.add(sellerId.toString());
+            }
+            String sellerIds = String.join(";", sellerIdsArr);
             String entry = order.getOrderId() + "," +
                     products + "," +
                     order.getBuyerId() + "," +
@@ -291,6 +299,18 @@ public class DbPool {
                     order.getTotalPrice() + "\n";
             writer.write(entry);
             writer.close();
+
+            //update current user orders
+            User.currentUser.addProductBought(order.getProducts());
+            updateUser(User.currentUser);
+
+            // update seller orders
+            for (UUID sellerId : order.getSellerIds()) {
+                User seller = new User(getUserById(sellerId));
+                seller.addProductSold(order.getProducts());
+                updateUser(seller);
+            }
+
             return;
         }
         System.out.println("Order already exists");

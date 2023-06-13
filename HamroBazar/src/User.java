@@ -112,9 +112,16 @@ public class User {
     public void addProductBought(String productId) {
         this.productsBought.add(productId);
     }
+    public void addProductBought(ArrayList<String> productId) {
+        this.productsBought.addAll(productId);
+    }
 
     public void addProductSold(String productId) {
         this.productsSold.add(productId);
+    }
+
+    public void addProductSold(ArrayList<String> productId) {
+        this.productsSold.addAll(productId);
     }
 
     public void removeProductPosted(String productId) {
@@ -122,8 +129,12 @@ public class User {
     }
 
     //TODO: Implement this method
-    public Integer getBalance() {
-        Integer balance = 0;
+    public Double getBalance() {
+        Double balance = 0.0;
+        for(String productId : this.productsSold) {
+            Product product = new Product( DbPool.getProductById(productId));
+            balance += product.getPrice();
+        }
 
         return balance;
     }

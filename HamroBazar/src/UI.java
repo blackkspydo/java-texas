@@ -10,42 +10,51 @@ public class UI {
                 +----------------------------------------------------------------------------------+
                                                                                                   
                                           Welcome to HamroBazar MarketPlace                      \s
-                                                                                        %s       \s
+                   Cart: %d ($%.2f)                                                     %s    \s
                 +----------------------------------------------------------------------------------+
-                """.formatted(User.currentUser != null ? User.currentUser.getUsername() : "");
-        System.out.printf(line);
-        switch (page) {
-            case NADA -> System.out.println();
-            case HOME -> System.out.println(line);
-        }
+                """.formatted(
+                User.currentUser != null ? Cart.currentCart.getProducts().size() : 0,
+                User.currentUser != null ? Cart.currentCart.getTotal() : 0,
+                User.currentUser != null ? User.currentUser.getUsername() : "");
+        String lineNotLoggedin = """
+                +----------------------------------------------------------------------------------+
+                                                                                                  
+                                          Welcome to HamroBazar MarketPlace                      \s
+                                   
+                +----------------------------------------------------------------------------------+
+                """;
+        System.out.println(User.currentUser != null ? line : lineNotLoggedin);
     }
 
     public static void getBody(Pages page) {
-        String home = User.currentUser != null ? """
+        String home = User.currentUser == null ? """
                 HamroBazar MarketPlace is a platform where you can buy and sell products.
-                You can buy products from the following categories:
+                You can buy/sell products from the following categories:
                 +----------------------------------------------------------------------------------+
                 | Electronics | Fashion | Home | Sports | Toys | Other |
                 +----------------------------------------------------------------------------------+
-                You can sell products in the following categories:
-                +----------------------------------------------------------------------------------+
-                | Electronics | Fashion | Home | Sports | Toys | Other |
-                +----------------------------------------------------------------------------------+
-                                
+                Login or Signup to get started.
                 +----------------------------------------------------------------------------------+
                 Suggested commands:
                 login -u <username> -p <password>
                 signup -n <name> -u <username> -p <password>
                 help | exit
                 +----------------------------------------------------------------------------------+
-                """ : "";
+                """ : """
+                
+                
+                HamroBazar MarketPlace is a platform where you can buy and sell products.
+                Use "help" command to see the list of available commands.
+                
+                
+                """;
 
         String profile = User.currentUser != null ? """
                 \n
                 +----------------------------------------------------------------------------------+
                            | Name : %s | Username : %s | Password : %s
                      %s    +----------------------+----------------------+-------------------------+
-                           | BoughtProducts : %d | SoldProducts : %d | Balance : %d
+                           | BoughtProducts : %d | SoldProducts : %d | Income : %f
                 +----------------------------------------------------------------------------------+
                 """.formatted(
                 User.currentUser.getName(),
@@ -69,17 +78,15 @@ public class UI {
             case HOME_USER_NOT_LOGGED_IN, HOME -> System.out.println(home);
             case PROFILE -> System.out.println(profile);
             case PRODUCT_VIEW -> getProductViewPage();
+            case HELP -> help();
+            case CART -> cartView();
         }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         DbPool.loadDataFromCSV();
         while (true) {
-            Thread.sleep(1000);
-            System.out.println(Cart.currentCart);
-            if (User.currentUser != null) {
-                System.out.println(User.currentUser.getId());
-            }
+            Thread.sleep(300);
             getHeader(UI.currentPage);
             getBody(UI.currentPage);
             getFooter(UI.currentPage);
@@ -114,8 +121,6 @@ public class UI {
     }
 
     public static void cartView() {
-        // show list of products in cart with their prices and total price and let user know to checkout
-        // if user wants to remove a product from cart, he can do so by typing remove <product_id>
         UI.currentPage = Pages.CART;
         if (User.currentUser == null) {
             System.out.println("Please login to view products");
@@ -144,22 +149,14 @@ public class UI {
                 +----------------------------------------------------------------------------------+
                 """.formatted(Cart.currentCart.getTotal()));
         System.out.println(line);
-        System.out.println("""
-                +----------------------------------------------------------------------------------+
-                Suggested commands:
-                remove <product_id>
-                checkout
-                goto <page> (home, profile, post, view, cart)
-                help | exit
-                +----------------------------------------------------------------------------------+
-                """);
+
     }
 
     public static void getProductViewPage() {
 
         ArrayList<Product> products = new ArrayList<>();
         for (Product product : DbPool.getProductMap().values()) {
-            if (product.getSeller() != User.currentUser.getId()) {
+            if (!product.getSeller().equals(User.currentUser.getId())) {
                 products.add(product);
             }
         }
@@ -169,41 +166,56 @@ public class UI {
         System.out.println("""
                 +----------------------------------------------------------------------------------+
                 Suggested commands:
-                buy <product_id>
-                goto <page> (home, profile, post, view, cart)
+                add cart [-i] [-id <id>,<id>,...] | checkout
+                goto <page> (home, profile, marketplace, cart)
                 help | exit
                 +----------------------------------------------------------------------------------+
                 """);
     }
 
     public static void getFooter(Pages page) {
-        String not_logged_in = """
-                +----------------------------------------------------------------------------------+
-                Suggested commands:
-                login -u <username> -p <password>
-                signup -n <name> -u <username> -p <password>
-                help | exit
-                +----------------------------------------------------------------------------------+
-                """;
+
         String home = """
                 +----------------------------------------------------------------------------------+
                 Suggested commands:
-                goto profile | goto post | goto view | goto cart | help | exit
+                goto profile | goto marketplace | goto cart | help | exit
                 +----------------------------------------------------------------------------------+
                 """;
         String profile = """
                 +----------------------------------------------------------------------------------+
                 Suggested commands:
-                goto <page> (home, profile, post, view, cart)
+                goto <page> (home, profile, marketplace, cart)
                 edit profile -n <name> -u <username> -p <password>
                 help | exit
                 +----------------------------------------------------------------------------------+
                 """;
         switch (page) {
-            case HOME_USER_NOT_LOGGED_IN -> System.out.println(not_logged_in);
-            case HOME -> System.out.println(home);
+            case  HOME,NADA -> System.out.println(home);
             case PROFILE -> System.out.println(profile);
         }
+    }
+
+    public  static  void help(){
+        UI.currentPage = Pages.NADA;
+        String line = """
+                +----------------------------------------------------------------------------------+
+                | * login -u <username> -p <password>                                              |
+                | * signup -n <name> -u <username> -p <password>                                   |
+                | * goto <page> (home, profile, post, view, cart)                                  |
+                | * edit profile -n <name> -u <username> -p <password>                             |
+                | * add product [-i] [-n <name>] [-d <description>] [-p <price>] [-c <category>]   |
+                |      [-co <condition>]                                                           |
+                | * edit product [-i] [-id <id>] [-n <name>] [-d <description>] [-p <price>]       |
+                |      [-c <category>] [-co <condition>] [-s <status>] [-q <quantity>]             |
+                | * remove product [-i] [-id <id>]                                                 |
+                | * add cart [-i] [-id <id>,<id>,...]                                              |
+                | * remove product [-i] [-id <id>,<id>,...]                                        |
+                | * checkout                                                                       |
+                | * help | exit                                                                    |
+                +----------------------------------------------------------------------------------+
+                """;
+                
+        System.out.println(line);
     }
 
     public static void parseCommand() throws IOException {
@@ -214,13 +226,14 @@ public class UI {
         int length = commandArray.length;
         String action = commandArray[0];
         String argument = length > 1 ? commandArray[1] : "";
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         switch (action) {
             case "goto" -> {
                 switch (argument) {
                     case "home" -> currentPage = Pages.HOME;
                     case "profile" -> currentPage = Pages.PROFILE;
-                    case "shop" -> currentPage = Pages.PRODUCT_VIEW;
-                    case "cart" -> cartView();
+                    case "marketplace" -> currentPage = Pages.PRODUCT_VIEW;
+                    case "cart" -> currentPage = Pages.CART;
                     default -> System.out.println("Err: Invalid command");
                 }
             }
@@ -253,15 +266,15 @@ public class UI {
                     System.out.println("Err: Invalid command");
                 }
             }
-            case "next" -> System.out.println("Next page");
-            case "prev" -> System.out.println("Previous page");
+            case "checkout" -> ServiceHandlers.checkoutHandler();
             case "login" -> ServiceHandlers.loginHandler(command);
             case "signup" -> ServiceHandlers.registerHandler(command);
-            case "help" -> currentPage = Pages.HELP;
+            case "help" -> UI.currentPage = Pages.HELP;
             case "logout" -> ServiceHandlers.logoutHandler();
             case "exit" -> System.exit(0);
             default -> System.out.println("Err: Invalid command");
         }
+        System.out.println("\n");
 
     }
 

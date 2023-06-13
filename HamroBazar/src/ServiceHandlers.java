@@ -3,6 +3,28 @@ import java.util.*;
 
 public class ServiceHandlers {
     public  static void loginHandler(String command) {
+        boolean isInteractive = command.contains("-i");
+        if (isInteractive) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter username: ");
+            String username = scanner.nextLine();
+            System.out.print("Enter password: ");
+            String password = scanner.nextLine();
+            User user = DbPool.getUserByUsername(username);
+            if (user == null) {
+                System.out.println("User not found");
+                return;
+            }
+            if (user.getPassword().equals(password)) {
+                System.out.println("Login successful");
+                User.currentUser = new User(user);
+                User.currentUser.setId(user.getId());
+                UI.currentPage = Pages.NADA;
+            } else {
+                System.out.println("Invalid password");
+            }
+            return;
+        }
         String username = Helpers.getOptionValue(command, "-u");
         String password = Helpers.getOptionValue(command, "-p");
         if (username == null || password == null) {
@@ -150,7 +172,7 @@ public class ServiceHandlers {
         String category = Helpers.getOptionValue(command, "-c");
         String condition = Helpers.getOptionValue(command, "-co");
         if (isHelp) {
-            System.out.println("Usage: add-product [-i] [-n <name>] [-d <description>] [-p <price>] [-c <category>] [-co <condition>]");
+            System.out.println("Usage: add product [-i] [-n <name>] [-d <description>] [-p <price>] [-c <category>] [-co <condition>]");
             return;
         }
         if (name == null || description == null || price == null || category == null || condition == null) {
@@ -215,7 +237,7 @@ public class ServiceHandlers {
         String category = Helpers.getOptionValue(command, "-c");
         String condition = Helpers.getOptionValue(command, "-co");
         if (isHelp) {
-            System.out.println("Usage: edit-product [-i] [-id <id>] [-n <name>] [-d <description>] [-p <price>] [-c <category>] [-co <condition>]");
+            System.out.println("Usage: edit product [-i] [-id <id>] [-n <name>] [-d <description>] [-p <price>] [-c <category>] [-co <condition>]");
             return;
         }
         if (id == null || name == null || description == null || price == null || category == null || condition == null) {
@@ -295,7 +317,7 @@ public class ServiceHandlers {
         }
 
         if (isHelp) {
-            System.out.println("Usage: add-to-cart [-i] [-id <id>,<id>,...]");
+            System.out.println("Usage: add cart [-i] [-id <id>,<id>,...]");
             return;
         }
 
@@ -368,14 +390,14 @@ public class ServiceHandlers {
         }
     }
 
-    public static void checkoutHandler(String command) throws IOException {
-        // checkout
+    public static void checkoutHandler() throws IOException {
+        /** TODO
         // has no interactive mode and it places Order directly show a ascii art of a shopping cart
         // and then show the total price and ask for confirmation
         // if confirmed then place the order and show a success message
         // if not then show a message that the order is cancelled
         // if the cart is empty then show a message that the cart is empty
-        // if the user is not logged in then show a message that the user is not logged in
+         if the user is not logged in then show a message that the user is not logged in **/
 
         if (User.currentUser == null) {
             System.out.println("Please login first");
