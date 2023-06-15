@@ -12,7 +12,7 @@ public enum Pages {
     CHECKOUT("Checkout"),
     ORDERS("Orders"),
     ORDER("Order"),
-    PRODUCT_VIEW("Product View");
+    PRODUCT_VIEW("Product View"), POSTS("Posts");
 
     private final String value;
 

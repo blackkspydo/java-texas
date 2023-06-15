@@ -47,7 +47,7 @@ public class ServiceHandlers {
     }
 
     public  static void registerHandler(String command) throws IOException {
-        boolean isInteractive = Helpers.getOptionValue(command, "-i") != null;
+        boolean isInteractive = command.contains("-i");
         if (isInteractive) {
             Scanner scanner = new Scanner(System.in);
             System.out.print("Enter name: ");
@@ -145,7 +145,7 @@ public class ServiceHandlers {
     }
 
     public static void addProductHandler(String command) throws IOException {
-        boolean isInteractive = command.contains("-i");
+        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
          if(isInteractive){
@@ -189,7 +189,7 @@ public class ServiceHandlers {
     }
 
     public static void editProductHandler(String command) throws IOException {
-        boolean isInteractive = command.contains("-i");
+        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
         if(isInteractive){
@@ -206,26 +206,22 @@ public class ServiceHandlers {
                 System.out.println("Product not found");
                 return;
             }
+            if (!product.getSellerId().equals(User.currentUser.getId())) {
+                System.out.println("You can't edit this product");
+                return;
+            }
             switch (field) {
-                case "name":
-                    product.setName(value);
-                    break;
-                case "description":
-                    product.setDescription(value);
-                    break;
-                case "price":
-                    product.setPrice(Double.parseDouble(value));
-                    break;
-                case "category":
-                    product.setCategory(Category.getCategory(value));
-                    break;
-                case "condition":
-                    product.setCondition(Condition.getCondition(value));
-                    break;
-                default:
+                case "name" -> product.setName(value);
+                case "description" -> product.setDescription(value);
+                case "price" -> product.setPrice(Double.parseDouble(value));
+                case "category" -> product.setCategory(Category.getCategory(value));
+                case "condition" -> product.setCondition(Condition.getCondition(value));
+                default -> {
                     System.out.println("Invalid field");
                     return;
+                }
             }
+
             DbPool.updateProduct(product);
             System.out.println("Product updated successfully");
             return;
@@ -249,22 +245,30 @@ public class ServiceHandlers {
             return;
         }
         Product product = new Product(name, description, Double.parseDouble(price), Condition.getCondition(condition), Category.getCategory(category), User.currentUser.getId());
-        product.setId(id);
+        if (!product.getSellerId().equals(User.currentUser.getId())) {
+            System.out.println("You can't edit this product");
+            return;
+        }
         DbPool.updateProduct(product);
         System.out.println("Product updated successfully");
     }
 
     public static void deleteProductHandler(String command) throws IOException {
-        boolean isInteractive = command.contains("-i");
+        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
         if(isInteractive){
             Scanner scanner = new Scanner(System.in);
             System.out.println("Which product do you want to delete?");
             String id = scanner.nextLine();
-            Product product = DbPool.getProductById(id);
+            Product product = new Product(DbPool.getProductById(id));
             if (product == null) {
                 System.out.println("Product not found");
+                return;
+            }
+
+            if (!product.getSellerId().equals(User.currentUser.getId())) {
+                System.out.println("You can't delete this product");
                 return;
             }
             DbPool.deleteProduct(product);
@@ -273,7 +277,7 @@ public class ServiceHandlers {
         }
         String id = Helpers.getOptionValue(command, "-id");
         if (isHelp) {
-            System.out.println("Usage: delete-product [-i] [-id <id>]");
+            System.out.println("Usage: delete product [-i] [-id <id>]");
             return;
         }
         if (id == null) {
@@ -284,9 +288,13 @@ public class ServiceHandlers {
             System.out.println("Please login first");
             return;
         }
-        Product product = DbPool.getProductById(id);
+        Product product = new Product(DbPool.getProductById(id));
         if (product == null) {
             System.out.println("Product not found");
+            return;
+        }
+        if (!product.getSellerId().equals(User.currentUser.getId())) {
+            System.out.println("You can't delete this product");
             return;
         }
         DbPool.deleteProduct(product);
@@ -295,7 +303,7 @@ public class ServiceHandlers {
 
 
     public static void addToCartHandler(String command) throws IOException {
-        boolean isInteractive = command.contains("-i");
+        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
 
@@ -305,7 +313,7 @@ public class ServiceHandlers {
             String input = scanner.nextLine();
             String[] ids = input.split(",");
             for (String id : ids) {
-                Product product = DbPool.getProductById(id);
+                Product product = new Product(DbPool.getProductById(id));
                 if (product == null) {
                     System.out.println("Product with ID " + id + " not found");
                     continue;
@@ -343,7 +351,7 @@ public class ServiceHandlers {
     }
 
     public static void removeProductFromCartHandler(String command) throws IOException {
-        boolean isInteractive = command.contains("-i");
+        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
 
@@ -391,14 +399,6 @@ public class ServiceHandlers {
     }
 
     public static void checkoutHandler() throws IOException {
-        /** TODO
-        // has no interactive mode and it places Order directly show a ascii art of a shopping cart
-        // and then show the total price and ask for confirmation
-        // if confirmed then place the order and show a success message
-        // if not then show a message that the order is cancelled
-        // if the cart is empty then show a message that the cart is empty
-         if the user is not logged in then show a message that the user is not logged in **/
-
         if (User.currentUser == null) {
             System.out.println("Please login first");
             return;

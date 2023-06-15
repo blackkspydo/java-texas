@@ -80,6 +80,7 @@ public class UI {
             case PRODUCT_VIEW -> getProductViewPage();
             case HELP -> help();
             case CART -> cartView();
+            case POSTS -> getMyProductPosts();
         }
     }
 
@@ -173,6 +174,44 @@ public class UI {
                 """);
     }
 
+    public static void getMyProductPosts(){
+        UI.currentPage = Pages.POSTS;
+        if (User.currentUser == null) {
+            System.out.println("Please login to view products");
+            return;
+        }
+        StringBuffer line = new StringBuffer("""
+                +----------------------------------------------------------------------------------+
+                |     ID    |        Name       | Price |       Seller      |       Category       |
+                +----------------------------------------------------------------------------------+
+                """);
+        for (Product product : DbPool.getProductMap().values()) {
+            if(product.getSeller().equals(User.currentUser.getId())){
+                line.append("""
+                        | %9s | %17s | %.2f | %17s | %20s |
+                        +----------------------------------------------------------------------------------+
+                        """.formatted(
+                        product.getId(),
+                        product.getName(),
+                        product.getPrice(),
+                        DbPool.getUserById(product.getSeller()).getName(),
+                        product.getCategory().getName()
+                ));
+            }
+        }
+        line.append("""
+                +----------------------------------------------------------------------------------+
+                Suggested commands:
+                edit product [-i] [-id <id>] [-n <name>] [-d <description>] [-p <price>] [-c <category>]
+                [-co <condition>]
+                delete product [-i] [-id <id>]
+                goto <page> (home, profile, marketplace, cart)
+                help | exit
+                +----------------------------------------------------------------------------------+
+                """);
+        System.out.println(line);
+    }
+
     public static void getFooter(Pages page) {
 
         String home = """
@@ -192,6 +231,7 @@ public class UI {
         switch (page) {
             case  HOME,NADA -> System.out.println(home);
             case PROFILE -> System.out.println(profile);
+            case POSTS -> System.out.println();
         }
     }
 
@@ -234,6 +274,7 @@ public class UI {
                     case "profile" -> currentPage = Pages.PROFILE;
                     case "marketplace" -> currentPage = Pages.PRODUCT_VIEW;
                     case "cart" -> currentPage = Pages.CART;
+                    case "posts" -> currentPage = Pages.POSTS;
                     default -> System.out.println("Err: Invalid command");
                 }
             }

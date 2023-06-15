@@ -180,7 +180,8 @@ public class DbPool {
     }
 
     public static void updateProduct(@NotNull Product product) throws IOException {
-        if (doesProductExist(product.getId())) {
+        System.out.println(product.getId());
+        if (!doesProductExist(product.getId())) {
             System.out.println("Product does not exist");
             return;
         }
