@@ -145,7 +145,7 @@ public class ServiceHandlers {
     }
 
     public static void addProductHandler(String command) throws IOException {
-        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
+        boolean isInteractive = (command.contains("-i ") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
          if(isInteractive){
@@ -189,7 +189,7 @@ public class ServiceHandlers {
     }
 
     public static void editProductHandler(String command) throws IOException {
-        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
+        boolean isInteractive = (command.contains("-i ") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
         if(isInteractive){
@@ -254,7 +254,7 @@ public class ServiceHandlers {
     }
 
     public static void deleteProductHandler(String command) throws IOException {
-        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
+        boolean isInteractive = (command.contains("-i ") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
         if(isInteractive){
@@ -303,7 +303,7 @@ public class ServiceHandlers {
 
 
     public static void addToCartHandler(String command) throws IOException {
-        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
+        boolean isInteractive = (command.contains("-i ") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
 
@@ -351,7 +351,7 @@ public class ServiceHandlers {
     }
 
     public static void removeProductFromCartHandler(String command) throws IOException {
-        boolean isInteractive = (command.contains("-i") || command.contains("--interactive")) && !command.contains("-id");
+        boolean isInteractive = (command.contains("-i ") || command.contains("--interactive")) && !command.contains("-id");
         boolean isHelp = command.contains("--help");
         UI.currentPage = Pages.NADA;
 
